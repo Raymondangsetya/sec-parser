@@ -17,6 +17,7 @@ from sec_parser.parsing_plugins.table_plugin import TablePlugin
 from sec_parser.parsing_plugins.text_plugin import TextPlugin
 from sec_parser.parsing_plugins.title_plugin import TitlePlugin
 from sec_parser.semantic_elements.semantic_elements import (
+    TableElement,
     TextElement,
     UndeterminedElement,
 )
@@ -28,15 +29,42 @@ if TYPE_CHECKING:
     )
 
 
+# -------------- strategy addition
+from abc import ABC, abstractmethod
+
+class CompanyStrategy(ABC):
+    @abstractmethod
+    def process(self, element):
+        pass
+
+# vai ter um arquivo proprio para isso
+rules = [1, 2, 3, 4]
+
+class AlphabetStrategy(CompanyStrategy):
+  # importa as regras aqui
+  # pode ser uma chain de metodos estilo functional programming
+    def process(self, element):
+      if type(element) == TableElement:
+        element.html_tag._text = "strategy modification"
+        print("chegou aqui")
+
+strategies = {
+    "Alphabet": AlphabetStrategy(),
+}
+
+# --------------
+
 class SecParser(AbstractSemanticElementParser):
     def __init__(
         self,
+        company_identifier = None,
         create_plugins: Callable[[], list[AbstractParsingPlugin]] | None = None,
         *,
         root_tag_parser: AbstractHtmlTagParser | None = None,
     ) -> None:
         self.create_plugins: Callable = create_plugins or self.create_default_plugins
         self._root_tag_parser = root_tag_parser or RootTagParser()
+        self.company_identifier = company_identifier
 
     def create_default_plugins(
         self,
@@ -65,5 +93,15 @@ class SecParser(AbstractSemanticElementParser):
 
         for plugin in plugins:
             elements = plugin.transform(elements)
-
+            strategy = strategies.get(self.company_identifier)
+            for element in elements:
+               if strategy:
+                  strategy.process(element)
         return elements
+
+
+# dar um jeito de saber quando usar cada estrategia
+# ideias:
+# aceitar parametro no SecParser passando o nome da empresa ou algum identificador
+  # o if iria verificar se esse parametro existe
+    # caso sim mete a strategy, caso nao nao

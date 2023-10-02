@@ -25,11 +25,14 @@ def parse_latest(
 ) -> SemanticTree:
     retriever = SecapioDataRetriever(api_key=secapio_api_key)
     metadata = retriever.retrieve_report_metadata(doc_type, latest_from_ticker=ticker)
+    # o retriver daria o metadado(nome da empresa para o secparser)
+    # sec parser aceita como metodo init
     url = metadata["linkToFilingDetails"]
     html = retriever.get_report_html(doc_type, url=url)
 
-    parser = SecParser()
+    parser = SecParser("company_identifier")
     elements = parser.parse(html)
 
     tree_builder = TreeBuilder()
     return tree_builder.build(elements)
+
