@@ -1,14 +1,10 @@
+from sec_parser.company_strategies.rules import NEW_TEXT_INSIDE_ELEMENT
 from sec_parser.data_sources.secapio_data_retriever import SecapioDataRetriever
 from sec_parser.parsing_engine.sec_parser import SecParser
 from sec_parser.parsing_plugins import TextPlugin
 from sec_parser.semantic_tree.tree_builder import TreeBuilder
-# quero q chame o sec_parser.parse primeiro
-# depois quero passar o plugin table
-# depois quero saber se da para alterar
-# depois quero tentar mapear para empresas diferentes
 
-def test_company_identifier_for_sec_parser():
-    html = """<!DOCTYPE html>
+HTML = """<!DOCTYPE html>
 <html>
 <head>
 <title>My Basic HTML Page</title>
@@ -16,33 +12,47 @@ def test_company_identifier_for_sec_parser():
 <body>
 <h1>Welcome to my basic HTML page!</h1>
 <p>This is a simple HTML page.</p>
-<table>table q ta escrita dentro da table</table>
+<table>something inside the table</table>
 </body>
 </html>"""
-    # o retriver daria o metada
-    parser = SecParser("company_identifier")
-    elements = parser.parse(html)
-    print("parser company", parser.company_identifier)
+
+
+def test_parameter_is_class_attribute():
+    company_identifier = "CompanyID"
+    parser = SecParser(company_identifier)
+    elements = parser.parse(HTML)
     tree_builder = TreeBuilder()
-    print("tree_builder", tree_builder.build(elements).render())
+    print("\n")
+    print(tree_builder.build(elements).render())
+    print("\n")
+    assert parser.company_identifier == company_identifier
 
 
-def test_strategy_identifier_for_sec_parser():
-    html = """<!DOCTYPE html>
-<html>
-<head>
-<title>My Basic HTML Page</title>
-</head>
-<body>
-<h1>Welcome to my basic HTML page!</h1>
-<p>This is a simple HTML page.</p>
-<table>table q ta escrita dentro da table</table>
-</body>
-</html>"""
-    # o retriver daria o metada
+def test_strategy_modifies_element_with_appropriate_strategy():
+    expected = NEW_TEXT_INSIDE_ELEMENT
+
     parser = SecParser("Alphabet")
-    elements = parser.parse(html)
-    print("elements", elements)
+    elements = parser.parse(HTML)
     tree_builder = TreeBuilder()
-    print("tree_builder", tree_builder.build(elements).render())
+
+    # visual feedback
+    tree_builder = TreeBuilder()
+    print(tree_builder.build(elements).render())
+    print("\n")
+
+    assert elements[2].html_tag.get_text() == expected
+
+
+
+# teste para transformar um semantic element em outro
+def test_semantic_element_to_another_semantic_element():
+    company_identifier = "Alphanome"
+    parser = SecParser(company_identifier)
+    elements = parser.parse(HTML)
+    tree_builder = TreeBuilder()
+    print(tree_builder.build(elements).render())
+    print("\n")
+    assert parser.company_identifier == company_identifier
+
+
 

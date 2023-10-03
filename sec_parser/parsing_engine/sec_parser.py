@@ -17,42 +17,17 @@ from sec_parser.parsing_plugins.table_plugin import TablePlugin
 from sec_parser.parsing_plugins.text_plugin import TextPlugin
 from sec_parser.parsing_plugins.title_plugin import TitlePlugin
 from sec_parser.semantic_elements.semantic_elements import (
-    TableElement,
     TextElement,
     UndeterminedElement,
 )
+
+from sec_parser.company_strategies.strategies_map import strategies
 
 if TYPE_CHECKING:
     from sec_parser.parsing_plugins.abstract_parsing_plugin import AbstractParsingPlugin
     from sec_parser.semantic_elements.abstract_semantic_element import (
         AbstractSemanticElement,
     )
-
-
-# -------------- strategy addition
-from abc import ABC, abstractmethod
-
-class CompanyStrategy(ABC):
-    @abstractmethod
-    def process(self, element):
-        pass
-
-# vai ter um arquivo proprio para isso
-rules = [1, 2, 3, 4]
-
-class AlphabetStrategy(CompanyStrategy):
-  # importa as regras aqui
-  # pode ser uma chain de metodos estilo functional programming
-    def process(self, element):
-      if type(element) == TableElement:
-        element.html_tag._text = "strategy modification"
-        print("chegou aqui")
-
-strategies = {
-    "Alphabet": AlphabetStrategy(),
-}
-
-# --------------
 
 class SecParser(AbstractSemanticElementParser):
     def __init__(
